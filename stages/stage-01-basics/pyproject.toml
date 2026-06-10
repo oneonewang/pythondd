@@ -1,0 +1,89 @@
+[project]
+name = "stage-01-basics"
+version = "0.1.0"
+description = "Python 阶段 1：入门与工具链"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "wu" }]
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["project/todo_cli"]
+
+# ==================== pytest ====================
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["exercises", "project/tests"]
+pythonpath = ["project"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+]
+filterwarnings = [
+    "error",
+    # 允许：第三方库 deprecation
+    "ignore::DeprecationWarning",
+]
+
+# ==================== ruff ====================
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# 默认规则集 + 关键补充
+select = [
+    "E",    # pycodestyle
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+]
+# 中文全角字符在教学文档中是有意保留的，关掉这条
+ignore = [
+    "E501",  # 行长（ruff format 会处理）
+    "RUF001",  # ambiguous unicode in strings
+    "RUF002",  # ambiguous unicode in docstrings
+    "RUF003",  # ambiguous unicode in comments
+]
+
+[tool.ruff.lint.per-file-ignores]
+# 练习源文件里有未实现的 TODO，未用 import 是预期的
+# ex05 是 idioms 练习，"non-pythonic 写法"故意保留供用户改写
+"exercises/ex*.py" = ["F401", "SIM103", "E711", "E712"]
+"project/todo_cli/storage.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ==================== mypy ====================
+[tool.mypy]
+python_version = "3.12"
+strict = false
+warn_unused_ignores = true
+warn_return_any = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+# ==================== uv ====================
+# 把本项目作为可安装包：todo_cli 可被 CLI 和 tests 直接 import
+[tool.uv]
+package = true
